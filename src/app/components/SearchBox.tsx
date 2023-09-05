@@ -5,7 +5,7 @@ import { WeatherInfo } from '../appContext';
 const API_KEY = 'b92068d212a2482cbc7123447230409';
 
 function SearchBox() {
-	const { setWeatherInfo } = React.useContext(WeatherInfo);
+	const { setWeatherData, setErrorMessage } = React.useContext(WeatherInfo);
 	const [cityInput, setCityInput] = useState<string>('');
 	const cityName = useRef<HTMLInputElement>(null);
 	const getWeatherData = async () => {
@@ -14,11 +14,12 @@ function SearchBox() {
 				`https://api.weatherapi.com/v1/current.json?key=${API_KEY}&q=${cityInput}&aqi=yes`,
 			);
 			const data = await serverResponse.json();
-			console.log(data);
+
 			if (data.error?.code === 1006) throw data;
-			setWeatherInfo(data);
-		} catch (err) {
-			console.log(err);
+			setWeatherData(data);
+		} catch (err: any) {
+			setErrorMessage(err.error?.message);
+			setWeatherData({});
 		}
 	};
 
@@ -34,6 +35,8 @@ function SearchBox() {
 					ref={cityName}
 					onChange={(e) => {
 						setCityInput(e.target.value);
+						setErrorMessage('');
+						setWeatherData({});
 					}}
 				/>
 			</div>
